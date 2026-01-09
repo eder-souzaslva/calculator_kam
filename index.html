@@ -706,7 +706,7 @@
             
             // Cálculos financeiros
             const minGuaranteed = minAttendance * valuePerAttendance;
-            const totalInvestment = minGuaranteed + platformLicense;
+            let totalInvestment = minGuaranteed + platformLicense;
             const targetRecoveryROI = totalInvestment + (totalInvestment * targetROI);
             
             // Se ticket médio não foi preenchido, calcular o necessário
@@ -776,6 +776,63 @@
             const paidAgreements = useMinimumScenario ? paidAgreementsMin : paidAgreementsROI;
             const targetRecovery = useMinimumScenario ? targetRecoveryMin : targetRecoveryROI;
             const effectiveROI = useMinimumScenario ? effectiveROIMin : targetROI;
+            
+            // Recalcular investimento se ultrapassar o mínimo garantido
+            let actualAttendanceCost = minGuaranteed; // Começa com o mínimo garantido
+            let investmentAdjustmentMessage = '';
+            let adjustedTargetRecovery = targetRecovery;
+            let adjustedEffectiveROI = effectiveROI;
+            
+            if (attendances > minAttendance) {
+                // Cobra pela diferença além do mínimo garantido
+                const extraAttendances = attendances - minAttendance;
+                const extraCost = extraAttendances * valuePerAttendance;
+                actualAttendanceCost = minGuaranteed + extraCost;
+                totalInvestment = actualAttendanceCost + platformLicense;
+                
+                // Recalcular o valor recuperado e ROI com o novo investimento
+                adjustedTargetRecovery = targetRecovery; // Mantém o valor recuperado necessário
+                adjustedEffectiveROI = (adjustedTargetRecovery - totalInvestment) / totalInvestment;
+                
+                investmentAdjustmentMessage = `
+                    <div style="background: #FFF3E0; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 5px solid #FF9800;">
+                        <strong style="color: #E65100;">💰 Ajuste de Investimento</strong><br><br>
+                        <span style="color: #555;">
+                            Como a operação resultará em <strong>${formatNumber(attendances)} atendimentos</strong>, 
+                            ultrapassando o mínimo garantido de <strong>${formatNumber(minAttendance)}</strong>, 
+                            o investimento total foi recalculado:<br><br>
+                            
+                            <table style="width: 100%; font-size: 0.95em; border-collapse: collapse;">
+                                <tr>
+                                    <td style="padding: 8px; border-bottom: 1px solid #DDDDDD;">Mínimo Garantido</td>
+                                    <td style="padding: 8px; text-align: right; border-bottom: 1px solid #DDDDDD;">${formatNumber(minAttendance)} × ${formatCurrency(valuePerAttendance)} = <strong>${formatCurrency(minGuaranteed)}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border-bottom: 1px solid #DDDDDD;">Atendimentos Extras</td>
+                                    <td style="padding: 8px; text-align: right; border-bottom: 1px solid #DDDDDD;">${formatNumber(extraAttendances)} × ${formatCurrency(valuePerAttendance)} = <strong style="color: #F57C00;">${formatCurrency(extraCost)}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border-bottom: 1px solid #DDDDDD;">Licença da Plataforma</td>
+                                    <td style="padding: 8px; text-align: right; border-bottom: 1px solid #DDDDDD;"><strong>${formatCurrency(platformLicense)}</strong></td>
+                                </tr>
+                                <tr style="background: #FFE0B2;">
+                                    <td style="padding: 12px; font-weight: 700; color: #E65100;">Investimento Total Ajustado</td>
+                                    <td style="padding: 12px; text-align: right; font-weight: 700; font-size: 1.2em; color: #E65100;"><strong>${formatCurrency(totalInvestment)}</strong></td>
+                                </tr>
+                            </table>
+                            <br>
+                            <strong style="color: #E65100;">📊 Impacto no ROI:</strong><br>
+                            • Investimento inicial: ${formatCurrency(minGuaranteed + platformLicense)}<br>
+                            • Investimento ajustado: ${formatCurrency(totalInvestment)}<br>
+                            • Diferença: +${formatCurrency(totalInvestment - (minGuaranteed + platformLicense))}<br>
+                            • ROI efetivo recalculado: <strong style="color: #E65100;">${adjustedEffectiveROI.toFixed(1)}x</strong>
+                        </span>
+                    </div>
+                `;
+            } else {
+                adjustedTargetRecovery = targetRecovery;
+                adjustedEffectiveROI = effectiveROI;
+            }
             
             // Cálculos operacionais
             const dailyDispatches = Math.ceil(totalDispatches / workDays);
@@ -866,6 +923,7 @@
                 
                 scenarioHTML = `
                     ${autoRatesMessage}
+                    ${investmentAdjustmentMessage}
                     ${autoTicketMessage}
                     <div class="comparison-box">
                         <h4>⚠️ Ajuste Automático: Priorização do Mínimo Garantido</h4>
@@ -913,6 +971,7 @@
                 
                 scenarioHTML = `
                     ${autoRatesMessage}
+                    ${investmentAdjustmentMessage}
                     ${autoTicketMessage}
                     <div class="success-box">
                         ✅ <strong>Cenário Ideal Alcançado!</strong> O cálculo baseado no ROI ${targetROI}x resulta em ${formatNumber(attendances)} atendimentos, 
@@ -925,8 +984,8 @@
             
             // Exibir resultados financeiros
             document.getElementById('totalInvestment').textContent = formatCurrency(totalInvestment);
-            document.getElementById('targetRecovery').textContent = formatCurrency(targetRecovery);
-            document.getElementById('roiDisplay').textContent = effectiveROI.toFixed(1) + 'x';
+            document.getElementById('targetRecovery').textContent = formatCurrency(adjustedTargetRecovery);
+            document.getElementById('roiDisplay').textContent = adjustedEffectiveROI.toFixed(1) + 'x';
             
             // Construir tabela do funil
             const funnelData = [
