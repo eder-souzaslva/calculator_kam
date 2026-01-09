@@ -107,26 +107,6 @@
             text-align: right;
         }
         
-        .playbook-btn {
-            display: inline-block;
-            background: linear-gradient(135deg, #3F51B5 0%, #5C6BC0 100%);
-            color: #FFFFFF;
-            padding: 10px 20px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.9em;
-            margin: 5px 5px 5px 0;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 5px rgba(63,81,181,0.3);
-        }
-        
-        .playbook-btn:hover {
-            background: linear-gradient(135deg, #303F9F 0%, #3F51B5 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(63,81,181,0.4);
-        }
-        
         .calculate-btn {
             background: linear-gradient(135deg, #4D00AE 0%, #7740F9 100%);
             color: #FFFFFF;
@@ -177,12 +157,6 @@
             font-size: 2em;
             font-weight: 700;
             margin: 10px 0;
-        }
-        
-        .result-description {
-            color: #666;
-            font-size: 0.95em;
-            margin-top: 10px;
         }
         
         .funnel-table {
@@ -248,16 +222,6 @@
             font-weight: 700 !important;
         }
         
-        .alert-box {
-            background: #13AAE6;
-            color: #FFFFFF;
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 0;
-            font-weight: 600;
-            text-align: center;
-        }
-        
         .warning-box {
             background: #DDDDDD;
             border-left: 5px solid #7740F9;
@@ -308,47 +272,6 @@
             font-weight: 700;
             font-size: 1.2em;
         }
-        
-        .comparison-box {
-            background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);
-            border-left: 5px solid #FF9800;
-            padding: 25px;
-            border-radius: 10px;
-            margin: 20px 0;
-        }
-        
-        .comparison-box h4 {
-            color: #E65100;
-            margin-bottom: 15px;
-            font-size: 1.2em;
-        }
-        
-        .comparison-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-top: 15px;
-        }
-        
-        .comparison-item {
-            background: #FFFFFF;
-            padding: 15px;
-            border-radius: 8px;
-            border: 2px solid #FF9800;
-        }
-        
-        .comparison-label {
-            color: #E65100;
-            font-weight: 600;
-            font-size: 0.9em;
-            margin-bottom: 8px;
-        }
-        
-        .comparison-value {
-            color: #FF6F00;
-            font-weight: 700;
-            font-size: 1.3em;
-        }
     </style>
 </head>
 <body>
@@ -392,9 +315,9 @@
                     </div>
                     <div class="input-group">
                         <label>ROI Objetivo (multiplicador)</label>
-                        <input type="number" step="0.1" id="targetROI" value="10" placeholder="Ex: 10" min="2">
+                        <input type="number" step="0.1" id="targetROI" placeholder="Ex: 15" min="2">
                         <div style="color: #FF9800; font-size: 0.85em; margin-top: 5px; font-style: italic;">
-                            Mínimo recomendado: 10x
+                            Mínimo recomendado: 15x
                         </div>
                     </div>
                 </div>
@@ -476,18 +399,34 @@
                 <!-- Investimento e ROI -->
                 <div class="result-card">
                     <div class="result-title">💵 Análise Financeira</div>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                    <!-- Primeira Linha -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #D5BFF1;">
                         <div>
-                            <div style="color: #666; font-size: 0.9em;">Investimento Total</div>
+                            <div style="color: #666; font-size: 0.9em;">Investimento Final</div>
+                            <div class="result-value" id="finalInvestment">-</div>
+                        </div>
+                        <div>
+                            <div style="color: #666; font-size: 0.9em;">Investimento MIA</div>
                             <div class="result-value" id="totalInvestment">-</div>
                         </div>
+                        <div>
+                            <div style="color: #666; font-size: 0.9em;">Custo HSM</div>
+                            <div class="result-value" id="hsmCost">-</div>
+                        </div>
+                    </div>
+                    <!-- Segunda Linha -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
                         <div>
                             <div style="color: #666; font-size: 0.9em;">Valor a Recuperar</div>
                             <div class="result-value" id="targetRecovery">-</div>
                         </div>
                         <div>
-                            <div style="color: #666; font-size: 0.9em;">ROI Efetivo</div>
+                            <div style="color: #666; font-size: 0.9em;">ROI</div>
                             <div class="result-value" id="roiDisplay">-</div>
+                        </div>
+                        <div>
+                            <div style="color: #666; font-size: 0.9em;">Custo Operacional</div>
+                            <div class="result-value" id="operationalCost">-</div>
                         </div>
                     </div>
                 </div>
@@ -529,10 +468,6 @@
                         <span class="config-label">Capacidade total da base:</span>
                         <span class="config-value" id="baseCapacity">-</span>
                     </div>
-                    <div class="config-item">
-                        <span class="config-label">Margem de segurança:</span>
-                        <span class="config-value" id="safetyMargin">-</span>
-                    </div>
                 </div>
                 
                 <div id="alertMessages"></div>
@@ -540,7 +475,7 @@
                 <!-- Botão de Download PDF -->
                 <div style="text-align: center; margin-top: 30px;">
                     <button class="calculate-btn" onclick="downloadPDF()" style="background: linear-gradient(135deg, #13AAE6 0%, #4D00AE 100%);">
-                        📄 BAIXAR PLANO DE AÇÃO EM PDF
+                        📄 BAIXAR PLANO DE AÇÃO
                     </button>
                 </div>
             </div>
@@ -549,50 +484,6 @@
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script>
-        // 🔒 VALIDAÇÃO DE SEGURANÇA - Só funciona embedado no Notion
-        (function() {
-            const referrer = document.referrer.toLowerCase();
-            const isNotion = referrer.includes('notion.so') || referrer.includes('notion.site');
-            const isLocalTest = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-            
-            // Permite acesso apenas do Notion ou teste local
-            if (!isNotion && !isLocalTest && referrer !== '') {
-                document.body.innerHTML = `
-                    <div style="
-                        display: flex;
-                        flex-direction: column;
-                        align-items: center;
-                        justify-content: center;
-                        height: 100vh;
-                        background: linear-gradient(135deg, #4D00AE 0%, #222222 100%);
-                        color: #FFFFFF;
-                        font-family: 'Montserrat', sans-serif;
-                        text-align: center;
-                        padding: 40px;
-                    ">
-                        <div style="
-                            background: rgba(255,255,255,0.1);
-                            padding: 60px 40px;
-                            border-radius: 20px;
-                            backdrop-filter: blur(10px);
-                            max-width: 600px;
-                        ">
-                            <h1 style="font-size: 3em; margin-bottom: 20px;">🔒</h1>
-                            <h2 style="font-size: 2em; margin-bottom: 20px;">Acesso Restrito</h2>
-                            <p style="font-size: 1.2em; line-height: 1.6; opacity: 0.9;">
-                                Esta calculadora é de uso exclusivo da equipe Monest<br>
-                                e só pode ser acessada através do Notion.
-                            </p>
-                            <p style="font-size: 1em; margin-top: 30px; opacity: 0.7;">
-                                Se você é membro da equipe, acesse através do workspace Notion.
-                            </p>
-                        </div>
-                    </div>
-                `;
-                throw new Error('Acesso negado: Origem não autorizada');
-            }
-        })();
-        
         function formatCurrency(value) {
             return new Intl.NumberFormat('pt-BR', {
                 style: 'currency',
@@ -608,31 +499,54 @@
             return value.toFixed(1) + '%';
         }
         
+        function formatROI(value) {
+            let roiPercent = value * 100;
+            
+            // Se ROI >= 100%, arredonda sem casas decimais
+            if (roiPercent >= 100) {
+                return Math.round(roiPercent) + '%';
+            }
+            
+            // Se ROI < 100%, usa até 4 casas decimais sem zeros desnecessários
+            roiPercent = roiPercent.toFixed(4);
+            roiPercent = parseFloat(roiPercent).toString();
+            return roiPercent + '%';
+        }
+        
         function calculate() {
-            // Capturar dados
             const baseSize = parseFloat(document.getElementById('baseSize').value);
             const minAttendance = parseFloat(document.getElementById('minAttendance').value);
             const valuePerAttendance = parseFloat(document.getElementById('valuePerAttendance').value);
-            const platformLicense = parseFloat(document.getElementById('platformLicense').value);
-            const targetROI = parseFloat(document.getElementById('targetROI').value);
+            const platformLicense = parseFloat(document.getElementById('platformLicense').value) || 0;
+            let targetROI = parseFloat(document.getElementById('targetROI').value);
             
-            // Taxas do funil com valores recomendados padrão
+            if (isNaN(targetROI) || targetROI <= 0) {
+                targetROI = 15;
+                document.getElementById('targetROI').value = 15;
+            }
+            
+            if (isNaN(baseSize) || isNaN(minAttendance) || isNaN(valuePerAttendance)) {
+                alert('Por favor, preencha todos os campos obrigatórios!');
+                return;
+            }
+            
+            // VALIDAÇÃO: Base insuficiente (atendimentos > 4x base)
+            if (minAttendance > (baseSize * 4)) {
+                alert('🚨 BASE INSUFICIENTE!\n\nO volume de atendimentos contratados (' + formatNumber(minAttendance) + ') é maior que 4x a base disponível (' + formatNumber(baseSize * 4) + ').\n\nNão é possível realizar o cálculo com essa configuração.');
+                return;
+            }
+            
+            if (targetROI < 2) {
+                alert('⚠️ ROI muito baixo!\n\nO ROI mínimo aceitável é 2x.\n\nROI inferior a 2x indica operação insustentável e alto risco de churn imediato.');
+                return;
+            }
+            
             const defaultRates = {
                 delivery: 95,
                 response: 20,
                 cpc: 56,
                 conversion: 23,
                 payment: 40
-            };
-            
-            // Premissas Monest (benchmarks internos)
-            const monestBenchmarks = {
-                delivery: 95,
-                response: 20,
-                cpc: 56,
-                conversion: 23,
-                payment: 40,
-                penetration: 90  // % máximo recomendado de penetração (0.9x)
             };
             
             let deliveryRate = parseFloat(document.getElementById('deliveryRate').value);
@@ -642,7 +556,6 @@
             let paymentRate = parseFloat(document.getElementById('paymentRate').value);
             let avgTicket = parseFloat(document.getElementById('avgTicket').value);
             
-            // Controle de quais campos foram auto-calculados
             let autoCalculated = {
                 delivery: false,
                 response: false,
@@ -652,7 +565,6 @@
                 ticket: false
             };
             
-            // Aplicar valores recomendados se campos estiverem vazios
             if (isNaN(deliveryRate) || deliveryRate <= 0) {
                 deliveryRate = defaultRates.delivery;
                 document.getElementById('deliveryRate').value = deliveryRate;
@@ -691,161 +603,74 @@
             const workDays = parseFloat(document.getElementById('workDays').value);
             const paymentDeadline = parseFloat(document.getElementById('paymentDeadline').value);
             
-            // Validações básicas
-            if (isNaN(baseSize) || isNaN(minAttendance) || isNaN(valuePerAttendance) || 
-                isNaN(platformLicense)) {
-                alert('Por favor, preencha todos os campos obrigatórios!');
-                return;
+            let adjustedMinAttendance = minAttendance;
+            let hasLicense2985 = Math.abs(platformLicense - 2985) < 0.01;
+            
+            if (hasLicense2985) {
+                adjustedMinAttendance = minAttendance + 1500;
             }
             
-            // Validação de ROI
-            if (targetROI < 2) {
-                alert('⚠️ ROI muito baixo!\n\nO ROI mínimo aceitável é 2x.\n\nROI inferior a 2x indica operação insustentável e alto risco de churn imediato.');
-                return;
+            function calculateInvestment(attendances) {
+                if (hasLicense2985) {
+                    return 2985 + ((attendances - 1500) * valuePerAttendance);
+                } else {
+                    return (valuePerAttendance * attendances) + platformLicense;
+                }
             }
             
-            // Cálculos financeiros
-            const minGuaranteed = minAttendance * valuePerAttendance;
-            let totalInvestment = minGuaranteed + platformLicense;
-            const targetRecoveryROI = totalInvestment + (totalInvestment * targetROI);
+            const totalInvestmentMin = calculateInvestment(adjustedMinAttendance);
+            const deliveredDispatchesMin = Math.ceil(adjustedMinAttendance / responseRate);
+            const hsmCostMin = deliveredDispatchesMin * 0.05;
+            const totalCostMin = totalInvestmentMin + hsmCostMin;
             
-            // Se ticket médio não foi preenchido, calcular o necessário
             let ticketAutoCalculated = false;
             if (isNaN(avgTicket) || avgTicket <= 0) {
-                // Calcular acordos pagos esperados baseado no mínimo garantido
-                const deliveredDispatchesMin = Math.ceil(minAttendance / responseRate);
                 const totalDispatchesMin = Math.ceil(deliveredDispatchesMin / deliveryRate);
-                const attendancesMin = minAttendance;
+                const attendancesMin = adjustedMinAttendance;
                 const cpcConfirmedMin = Math.ceil(attendancesMin * cpcRate);
                 const generatedAgreementsMin = Math.ceil(cpcConfirmedMin * conversionRate);
                 const paidAgreementsMin = Math.ceil(generatedAgreementsMin * paymentRate);
                 
-                // Ticket necessário para atingir o ROI com o mínimo garantido
-                avgTicket = targetRecoveryROI / paidAgreementsMin;
+                const targetRecoveryForROI = totalCostMin * (1 + targetROI);
+                avgTicket = targetRecoveryForROI / paidAgreementsMin;
                 
-                // Atualizar campo
                 document.getElementById('avgTicket').value = avgTicket.toFixed(2);
                 ticketAutoCalculated = true;
                 autoCalculated.ticket = true;
             }
             
-            // CENÁRIO 1: Baseado no ROI
-            const paidAgreementsROI = Math.ceil(targetRecoveryROI / avgTicket);
-            const generatedAgreementsROI = Math.ceil(paidAgreementsROI / paymentRate);
-            const cpcConfirmedROI = Math.ceil(generatedAgreementsROI / conversionRate);
-            const attendancesROI = Math.ceil(cpcConfirmedROI / cpcRate);
-            const deliveredDispatchesROI = Math.ceil(attendancesROI / responseRate);
-            const totalDispatchesROI = Math.ceil(deliveredDispatchesROI / deliveryRate);
-            
-            // CENÁRIO 2: Baseado no Mínimo Garantido
-            const deliveredDispatchesMin = Math.ceil(minAttendance / responseRate);
             const totalDispatchesMin = Math.ceil(deliveredDispatchesMin / deliveryRate);
-            const attendancesMin = minAttendance;
+            const attendancesMin = adjustedMinAttendance;
             const cpcConfirmedMin = Math.ceil(attendancesMin * cpcRate);
             const generatedAgreementsMin = Math.ceil(cpcConfirmedMin * conversionRate);
             const paidAgreementsMin = Math.ceil(generatedAgreementsMin * paymentRate);
             const targetRecoveryMin = paidAgreementsMin * avgTicket;
-            const effectiveROIMin = (targetRecoveryMin - totalInvestment) / totalInvestment;
             
-            // DECISÃO: Qual cenário usar?
-            let useMinimumScenario = false;
-            let scenarioReason = '';
-            let suggestTicketAdjustment = false;
-            let recommendedTicket = 0;
+            const effectiveROIMin = (targetRecoveryMin - totalCostMin) / totalCostMin;
             
-            if (attendancesROI < minAttendance) {
-                useMinimumScenario = true;
-                scenarioReason = `O cálculo baseado no ROI ${targetROI}x resultaria em apenas ${formatNumber(attendancesROI)} atendimentos, abaixo do mínimo garantido de ${formatNumber(minAttendance)}.`;
-                
-                // Calcular ticket médio ideal para atingir ROI E mínimo garantido
-                // Usando o mínimo garantido como base de atendimentos
-                const idealPaidAgreements = Math.ceil(targetRecoveryROI / (attendancesMin * cpcRate * conversionRate * paymentRate));
-                recommendedTicket = targetRecoveryROI / (attendancesMin * cpcRate * conversionRate * paymentRate);
-                
-                if (recommendedTicket > avgTicket * 1.1) { // Se precisar aumentar mais de 10%
-                    suggestTicketAdjustment = true;
-                }
-            }
+            const totalDispatches = totalDispatchesMin;
+            const deliveredDispatches = deliveredDispatchesMin;
+            const attendances = attendancesMin;
+            const cpcConfirmed = cpcConfirmedMin;
+            const generatedAgreements = generatedAgreementsMin;
+            const paidAgreements = paidAgreementsMin;
+            const targetRecovery = targetRecoveryMin;
+            const totalInvestment = totalInvestmentMin;
+            const hsmCost = hsmCostMin;
+            const totalCost = totalCostMin;
+            const effectiveROI = effectiveROIMin;
             
-            // Valores finais (baseado no cenário escolhido)
-            const totalDispatches = useMinimumScenario ? totalDispatchesMin : totalDispatchesROI;
-            const deliveredDispatches = useMinimumScenario ? deliveredDispatchesMin : deliveredDispatchesROI;
-            const attendances = useMinimumScenario ? attendancesMin : attendancesROI;
-            const cpcConfirmed = useMinimumScenario ? cpcConfirmedMin : cpcConfirmedROI;
-            const generatedAgreements = useMinimumScenario ? generatedAgreementsMin : generatedAgreementsROI;
-            const paidAgreements = useMinimumScenario ? paidAgreementsMin : paidAgreementsROI;
-            const targetRecovery = useMinimumScenario ? targetRecoveryMin : targetRecoveryROI;
-            const effectiveROI = useMinimumScenario ? effectiveROIMin : targetROI;
+            const operationalCost = (totalCost / targetRecovery) * 100;
             
-            // Recalcular investimento se ultrapassar o mínimo garantido
-            let actualAttendanceCost = minGuaranteed; // Começa com o mínimo garantido
-            let investmentAdjustmentMessage = '';
-            let adjustedTargetRecovery = targetRecovery;
-            let adjustedEffectiveROI = effectiveROI;
-            
-            if (attendances > minAttendance) {
-                // Cobra pela diferença além do mínimo garantido
-                const extraAttendances = attendances - minAttendance;
-                const extraCost = extraAttendances * valuePerAttendance;
-                actualAttendanceCost = minGuaranteed + extraCost;
-                totalInvestment = actualAttendanceCost + platformLicense;
-                
-                // Recalcular o valor recuperado e ROI com o novo investimento
-                adjustedTargetRecovery = targetRecovery; // Mantém o valor recuperado necessário
-                adjustedEffectiveROI = (adjustedTargetRecovery - totalInvestment) / totalInvestment;
-                
-                investmentAdjustmentMessage = `
-                    <div style="background: #FFF3E0; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 5px solid #FF9800;">
-                        <strong style="color: #E65100;">💰 Ajuste de Investimento</strong><br><br>
-                        <span style="color: #555;">
-                            Como a operação resultará em <strong>${formatNumber(attendances)} atendimentos</strong>, 
-                            ultrapassando o mínimo garantido de <strong>${formatNumber(minAttendance)}</strong>, 
-                            o investimento total foi recalculado:<br><br>
-                            
-                            <table style="width: 100%; font-size: 0.95em; border-collapse: collapse;">
-                                <tr>
-                                    <td style="padding: 8px; border-bottom: 1px solid #DDDDDD;">Mínimo Garantido</td>
-                                    <td style="padding: 8px; text-align: right; border-bottom: 1px solid #DDDDDD;">${formatNumber(minAttendance)} × ${formatCurrency(valuePerAttendance)} = <strong>${formatCurrency(minGuaranteed)}</strong></td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 8px; border-bottom: 1px solid #DDDDDD;">Atendimentos Extras</td>
-                                    <td style="padding: 8px; text-align: right; border-bottom: 1px solid #DDDDDD;">${formatNumber(extraAttendances)} × ${formatCurrency(valuePerAttendance)} = <strong style="color: #F57C00;">${formatCurrency(extraCost)}</strong></td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 8px; border-bottom: 1px solid #DDDDDD;">Licença da Plataforma</td>
-                                    <td style="padding: 8px; text-align: right; border-bottom: 1px solid #DDDDDD;"><strong>${formatCurrency(platformLicense)}</strong></td>
-                                </tr>
-                                <tr style="background: #FFE0B2;">
-                                    <td style="padding: 12px; font-weight: 700; color: #E65100;">Investimento Total Ajustado</td>
-                                    <td style="padding: 12px; text-align: right; font-weight: 700; font-size: 1.2em; color: #E65100;"><strong>${formatCurrency(totalInvestment)}</strong></td>
-                                </tr>
-                            </table>
-                            <br>
-                            <strong style="color: #E65100;">📊 Impacto no ROI:</strong><br>
-                            • Investimento inicial: ${formatCurrency(minGuaranteed + platformLicense)}<br>
-                            • Investimento ajustado: ${formatCurrency(totalInvestment)}<br>
-                            • Diferença: +${formatCurrency(totalInvestment - (minGuaranteed + platformLicense))}<br>
-                            • ROI efetivo recalculado: <strong style="color: #E65100;">${adjustedEffectiveROI.toFixed(1)}x</strong>
-                        </span>
-                    </div>
-                `;
-            } else {
-                adjustedTargetRecovery = targetRecovery;
-                adjustedEffectiveROI = effectiveROI;
-            }
-            
-            // Cálculos operacionais
             const dailyDispatches = Math.ceil(totalDispatches / workDays);
-            const basePenetration = totalDispatches / baseSize;
-            const dispatchSpacing = Math.round(workDays / basePenetration);
+            const penetrationFactor = totalDispatches / baseSize;
+            const basePenetration = penetrationFactor * 100;
+            const dispatchSpacing = Math.round(workDays / penetrationFactor);
             const productiveDays = workDays - paymentDeadline;
-            const baseCapacity = Math.floor(baseSize * basePenetration);
-            const safetyMargin = ((baseCapacity - totalDispatches) / totalDispatches) * 100;
+            const baseCapacity = Math.floor(baseSize * penetrationFactor);
             
-            // Exibir análise de cenários
             let scenarioHTML = '';
             
-            // Mostrar taxas auto-calculadas
             let autoRatesMessage = '';
             const autoRatesList = [];
             if (autoCalculated.delivery) autoRatesList.push('Taxa de Entrega: ' + (deliveryRate * 100).toFixed(0) + '%');
@@ -871,123 +696,94 @@
                 `;
             }
             
-            if (useMinimumScenario) {
-                let ticketAdjustmentHTML = '';
-                if (suggestTicketAdjustment) {
-                    const ticketIncrease = ((recommendedTicket - avgTicket) / avgTicket) * 100;
-                    ticketAdjustmentHTML = `
-                        <div style="background: #FFF3E0; padding: 20px; border-radius: 10px; margin-top: 20px; border-left: 5px solid #FF9800;">
-                            <h4 style="color: #E65100; margin-bottom: 15px;">💡 Recomendação: Ajuste de Ticket Médio</h4>
-                            <p style="margin-bottom: 15px; color: #555;">
-                                Para atingir simultaneamente o <strong>ROI de ${targetROI}x</strong> e o <strong>mínimo garantido de ${formatNumber(minAttendance)} atendimentos</strong>, 
-                                seria necessário um ticket médio maior.
-                            </p>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-top: 15px;">
-                                <div style="background: #FFFFFF; padding: 15px; border-radius: 8px; border: 2px solid #FF9800;">
-                                    <div style="color: #E65100; font-weight: 600; font-size: 0.9em; margin-bottom: 8px;">Ticket Atual</div>
-                                    <div style="color: #FF6F00; font-weight: 700; font-size: 1.3em;">${formatCurrency(avgTicket)}</div>
-                                </div>
-                                <div style="background: #FFFFFF; padding: 15px; border-radius: 8px; border: 2px solid #4CAF50;">
-                                    <div style="color: #2E7D32; font-weight: 600; font-size: 0.9em; margin-bottom: 8px;">Ticket Recomendado</div>
-                                    <div style="color: #1B5E20; font-weight: 700; font-size: 1.3em;">${formatCurrency(recommendedTicket)}</div>
-                                </div>
-                                <div style="background: #FFFFFF; padding: 15px; border-radius: 8px; border: 2px solid #13AAE6;">
-                                    <div style="color: #0277BD; font-weight: 600; font-size: 0.9em; margin-bottom: 8px;">Aumento Necessário</div>
-                                    <div style="color: #01579B; font-weight: 700; font-size: 1.3em;">+${ticketIncrease.toFixed(1)}%</div>
-                                </div>
+            let ticketAdjustmentHTML = '';
+            const recommendedTicket = (totalCost * (1 + targetROI)) / paidAgreements;
+            
+            if (effectiveROI < targetROI) {
+                const ticketIncrease = ((recommendedTicket - avgTicket) / avgTicket) * 100;
+                ticketAdjustmentHTML = `
+                    <div style="background: #FFF3E0; padding: 20px; border-radius: 10px; margin-top: 20px; border-left: 5px solid #FF9800;">
+                        <h4 style="color: #E65100; margin-bottom: 15px;">💡 Oportunidade: Otimização de ROI</h4>
+                        <p style="margin-bottom: 15px; color: #555;">
+                            O cálculo foi baseado no <strong>mínimo garantido de ${formatNumber(minAttendance)} atendimentos</strong> (prioridade #1).
+                            Para atingir também o <strong>ROI objetivo de ${targetROI}x</strong>, seria necessário um ticket médio maior.
+                        </p>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-top: 15px;">
+                            <div style="background: #FFFFFF; padding: 15px; border-radius: 8px; border: 2px solid #FF9800;">
+                                <div style="color: #E65100; font-weight: 600; font-size: 0.9em; margin-bottom: 8px;">Ticket Atual</div>
+                                <div style="color: #FF6F00; font-weight: 700; font-size: 1.3em;">${formatCurrency(avgTicket)}</div>
                             </div>
-                            <p style="margin-top: 15px; color: #555; font-size: 0.95em;">
-                                <strong>Ações possíveis:</strong><br>
-                                • Trabalhar com ofertas de valores maiores (aumentar ticket médio)<br>
-                                • Focar em devedores com débitos de maior valor<br>
-                                • Ajustar estratégia de negociação para aumentar valor médio dos acordos<br>
-                                • Revisar o ROI objetivo ou aumentar o mínimo garantido
-                            </p>
-                        </div>
-                    `;
-                }
-                
-                let autoTicketMessage = '';
-                if (ticketAutoCalculated) {
-                    autoTicketMessage = `
-                        <div style="background: #E8F5E9; padding: 15px; border-radius: 10px; margin-top: 15px; border-left: 5px solid #4CAF50;">
-                            <p style="color: #2E7D32; font-weight: 600;">
-                                ✅ <strong>Ticket Médio Calculado Automaticamente:</strong> ${formatCurrency(avgTicket)}
-                            </p>
-                            <p style="color: #555; margin-top: 8px; font-size: 0.95em;">
-                                Este é o valor mínimo necessário por acordo para atingir o ROI de ${targetROI}x com o mínimo garantido de ${formatNumber(minAttendance)} atendimentos.
-                            </p>
-                        </div>
-                    `;
-                }
-                
-                scenarioHTML = `
-                    ${autoRatesMessage}
-                    ${investmentAdjustmentMessage}
-                    ${autoTicketMessage}
-                    <div class="comparison-box">
-                        <h4>⚠️ Ajuste Automático: Priorização do Mínimo Garantido</h4>
-                        <p style="margin-bottom: 15px;"><strong>Motivo:</strong> ${scenarioReason}</p>
-                        <p style="margin-bottom: 15px;">O sistema recalculou automaticamente priorizando o <strong>mínimo garantido de ${formatNumber(minAttendance)} atendimentos</strong>. Isso resultará em um ROI efetivo maior que o objetivo inicial.</p>
-                        
-                        <div class="comparison-grid">
-                            <div class="comparison-item">
-                                <div class="comparison-label">ROI Objetivo Original</div>
-                                <div class="comparison-value">${targetROI}x</div>
+                            <div style="background: #FFFFFF; padding: 15px; border-radius: 8px; border: 2px solid #4CAF50;">
+                                <div style="color: #2E7D32; font-weight: 600; font-size: 0.9em; margin-bottom: 8px;">Ticket Ideal para ROI ${targetROI}x</div>
+                                <div style="color: #1B5E20; font-weight: 700; font-size: 1.3em;">${formatCurrency(recommendedTicket)}</div>
                             </div>
-                            <div class="comparison-item">
-                                <div class="comparison-label">ROI Efetivo Ajustado</div>
-                                <div class="comparison-value">${effectiveROI.toFixed(1)}x</div>
-                            </div>
-                            <div class="comparison-item">
-                                <div class="comparison-label">Atendimentos (ROI)</div>
-                                <div class="comparison-value">${formatNumber(attendancesROI)}</div>
-                            </div>
-                            <div class="comparison-item">
-                                <div class="comparison-label">Atendimentos (Ajustado)</div>
-                                <div class="comparison-value" style="color: #4CAF50;">${formatNumber(minAttendance)} ✓</div>
+                            <div style="background: #FFFFFF; padding: 15px; border-radius: 8px; border: 2px solid #13AAE6;">
+                                <div style="color: #0277BD; font-weight: 600; font-size: 0.9em; margin-bottom: 8px;">Aumento Necessário</div>
+                                <div style="color: #01579B; font-weight: 700; font-size: 1.3em;">+${ticketIncrease.toFixed(1)}%</div>
                             </div>
                         </div>
-                        ${ticketAdjustmentHTML}
-                    </div>
-                `;
-            } else {
-                let autoTicketMessage = '';
-                if (ticketAutoCalculated) {
-                    autoTicketMessage = `
-                        <div style="background: #E8F5E9; padding: 20px; border-radius: 10px; margin-bottom: 15px; border-left: 5px solid #4CAF50;">
-                            <h4 style="color: #2E7D32; margin-bottom: 10px;">✅ Ticket Médio Calculado Automaticamente</h4>
-                            <p style="color: #555; margin-bottom: 10px;">
-                                <strong>Ticket Médio Calculado:</strong> ${formatCurrency(avgTicket)}
-                            </p>
-                            <p style="color: #555; font-size: 0.95em;">
-                                Este é o valor ideal por acordo para atingir simultaneamente:<br>
-                                • ROI de ${targetROI}x (${formatCurrency(targetRecovery)} recuperado)<br>
-                                • Mínimo garantido de ${formatNumber(minAttendance)} atendimentos
-                            </p>
-                        </div>
-                    `;
-                }
-                
-                scenarioHTML = `
-                    ${autoRatesMessage}
-                    ${investmentAdjustmentMessage}
-                    ${autoTicketMessage}
-                    <div class="success-box">
-                        ✅ <strong>Cenário Ideal Alcançado!</strong> O cálculo baseado no ROI ${targetROI}x resulta em ${formatNumber(attendances)} atendimentos, 
-                        superando o mínimo garantido de ${formatNumber(minAttendance)} em ${formatNumber(attendances - minAttendance)} atendimentos 
-                        (+${((attendances - minAttendance) / minAttendance * 100).toFixed(1)}%).
+                        <p style="margin-top: 15px; color: #555; font-size: 0.95em;">
+                            <strong>Ações para aumentar ticket médio:</strong><br>
+                            • Trabalhar com ofertas de valores maiores<br>
+                            • Focar em devedores com débitos de maior valor<br>
+                            • Ajustar estratégia de negociação<br>
+                            • Priorizar carteira de alto valor
+                        </p>
                     </div>
                 `;
             }
+            
+            let autoTicketMessage = '';
+            if (ticketAutoCalculated) {
+                autoTicketMessage = `
+                    <div style="background: #E8F5E9; padding: 15px; border-radius: 10px; margin-top: 15px; border-left: 5px solid #4CAF50;">
+                        <p style="color: #2E7D32; font-weight: 600;">
+                            ✅ <strong>Ticket Médio Calculado Automaticamente:</strong> ${formatCurrency(avgTicket)}
+                        </p>
+                        <p style="color: #555; margin-top: 8px; font-size: 0.95em;">
+                            Este valor foi calculado para atingir o ROI de ${targetROI}x com ${formatNumber(attendances)} atendimentos${hasLicense2985 ? ' (incluindo 1.500 de carência)' : ''}.
+                        </p>
+                    </div>
+                `;
+            }
+            
+            let license2985Message = '';
+            if (hasLicense2985) {
+                license2985Message = `
+                    <div style="background: #E3F2FD; padding: 20px; border-radius: 10px; margin-bottom: 15px; border-left: 5px solid #2196F3;">
+                        <h4 style="color: #1565C0; margin-bottom: 10px;">📋 Plano Licença R$ 2.985,00 Detectado</h4>
+                        <p style="color: #555; margin-bottom: 10px;">
+                            <strong>Mínimo Garantido Contratado:</strong> ${formatNumber(minAttendance)} atendimentos<br>
+                            <strong>Carência Inclusa no Plano:</strong> 1.500 atendimentos<br>
+                            <strong>Total de Atendimentos a Gerar:</strong> ${formatNumber(adjustedMinAttendance)} atendimentos
+                        </p>
+                        <p style="color: #555; font-size: 0.95em;">
+                            💡 O cálculo considera automaticamente os 1.500 atendimentos de carência inclusos no valor do plano.
+                        </p>
+                    </div>
+                `;
+            }
+            
+            scenarioHTML = `
+                ${license2985Message}
+                ${autoRatesMessage}
+                ${autoTicketMessage}
+                <div class="success-box">
+                    ✅ <strong>Cálculo Baseado no Mínimo Garantido</strong><br><br>
+                    O funil foi estruturado priorizando o volume de <strong>${formatNumber(attendances)} atendimentos</strong>${hasLicense2985 ? ' (mínimo garantido + carência)' : ''} conforme contratado.
+                    ${effectiveROI >= targetROI ? `<br>ROI objetivo de ${targetROI}x foi atingido com sucesso!` : ''}
+                </div>
+                ${ticketAdjustmentHTML}
+            `;
             document.getElementById('scenarioAnalysis').innerHTML = scenarioHTML;
             
-            // Exibir resultados financeiros
             document.getElementById('totalInvestment').textContent = formatCurrency(totalInvestment);
-            document.getElementById('targetRecovery').textContent = formatCurrency(adjustedTargetRecovery);
-            document.getElementById('roiDisplay').textContent = adjustedEffectiveROI.toFixed(1) + 'x';
+            document.getElementById('hsmCost').textContent = formatCurrency(hsmCost);
+            document.getElementById('finalInvestment').textContent = formatCurrency(totalCost);
+            document.getElementById('targetRecovery').textContent = formatCurrency(targetRecovery);
+            document.getElementById('roiDisplay').textContent = formatROI(effectiveROI);
+            document.getElementById('operationalCost').textContent = operationalCost.toFixed(1) + '%';
             
-            // Construir tabela do funil
             const funnelData = [
                 { step: '1', name: 'Disparos Agendados', value: totalDispatches, calc: 'Total do mês' },
                 { step: '↓', name: 'Taxa de Entrega', value: formatPercent(deliveryRate * 100), calc: '-' },
@@ -1021,454 +817,144 @@
             
             document.getElementById('funnelTableBody').innerHTML = tableHTML;
             
-            // Configurações operacionais
             document.getElementById('dailyDispatches').textContent = formatNumber(dailyDispatches);
             document.getElementById('dispatchSpacing').textContent = dispatchSpacing + ' dias';
-            document.getElementById('basePenetration').textContent = basePenetration.toFixed(2) + 'x';
+            document.getElementById('basePenetration').textContent = basePenetration.toFixed(1) + '%';
             document.getElementById('productiveDays').textContent = productiveDays + ' D.U.';
             document.getElementById('baseCapacity').textContent = formatNumber(baseCapacity) + ' disparos';
-            document.getElementById('safetyMargin').textContent = safetyMargin.toFixed(1) + '%';
             
-            // Alertas
             let alerts = '';
             
-            // Alerta de indicadores abaixo da premissa Monest
-            const belowBenchmark = [];
-            const actualRates = {
-                delivery: deliveryRate * 100,
-                response: responseRate * 100,
-                cpc: cpcRate * 100,
-                conversion: conversionRate * 100,
-                payment: paymentRate * 100
-            };
-            
-            if (actualRates.delivery < monestBenchmarks.delivery) {
-                belowBenchmark.push({
-                    name: 'Taxa de Entrega',
-                    atual: actualRates.delivery.toFixed(1) + '%',
-                    premissa: monestBenchmarks.delivery + '%',
-                    gap: (monestBenchmarks.delivery - actualRates.delivery).toFixed(1) + 'pp'
-                });
-            }
-            if (actualRates.response < monestBenchmarks.response) {
-                belowBenchmark.push({
-                    name: 'Taxa de Resposta',
-                    atual: actualRates.response.toFixed(1) + '%',
-                    premissa: monestBenchmarks.response + '%',
-                    gap: (monestBenchmarks.response - actualRates.response).toFixed(1) + 'pp'
-                });
-            }
-            if (actualRates.cpc < monestBenchmarks.cpc) {
-                belowBenchmark.push({
-                    name: 'Taxa de CPC',
-                    atual: actualRates.cpc.toFixed(1) + '%',
-                    premissa: monestBenchmarks.cpc + '%',
-                    gap: (monestBenchmarks.cpc - actualRates.cpc).toFixed(1) + 'pp'
-                });
-            }
-            if (actualRates.conversion < monestBenchmarks.conversion) {
-                belowBenchmark.push({
-                    name: 'Taxa de Conversão',
-                    atual: actualRates.conversion.toFixed(1) + '%',
-                    premissa: monestBenchmarks.conversion + '%',
-                    gap: (monestBenchmarks.conversion - actualRates.conversion).toFixed(1) + 'pp'
-                });
-            }
-            if (actualRates.payment < monestBenchmarks.payment) {
-                belowBenchmark.push({
-                    name: 'Efetividade de Pagamento',
-                    atual: actualRates.payment.toFixed(1) + '%',
-                    premissa: monestBenchmarks.payment + '%',
-                    gap: (monestBenchmarks.payment - actualRates.payment).toFixed(1) + 'pp'
-                });
-            }
-            
-            if (belowBenchmark.length > 0) {
-                alerts += `<div class="warning-box" style="background: #E8EAF6; border-left-color: #3F51B5;">
-                    <strong style="color: #283593;">📊 OPORTUNIDADE DE MELHORIA NOS INDICADORES</strong><br><br>
+            if (hasLicense2985) {
+                alerts += `<div style="background: #E8F5E9; border-left: 5px solid #4CAF50; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                    <strong style="color: #2E7D32;">✅ Plano Licença R$ 2.985,00</strong><br><br>
                     <span style="color: #555;">
-                        Os seguintes indicadores estão <strong>abaixo da premissa Monest</strong>:<br><br>
-                        <table style="width: 100%; border-collapse: collapse; font-size: 0.95em;">
-                            <thead>
-                                <tr style="background: #C5CAE9;">
-                                    <th style="padding: 8px; text-align: left; border: 1px solid #9FA8DA;">Indicador</th>
-                                    <th style="padding: 8px; text-align: center; border: 1px solid #9FA8DA;">Atual</th>
-                                    <th style="padding: 8px; text-align: center; border: 1px solid #9FA8DA;">Premissa Monest</th>
-                                    <th style="padding: 8px; text-align: center; border: 1px solid #9FA8DA;">Gap</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${belowBenchmark.map(item => `
-                                    <tr>
-                                        <td style="padding: 8px; border: 1px solid #9FA8DA;"><strong>${item.name}</strong></td>
-                                        <td style="padding: 8px; text-align: center; border: 1px solid #9FA8DA; color: #F57C00;"><strong>${item.atual}</strong></td>
-                                        <td style="padding: 8px; text-align: center; border: 1px solid #9FA8DA; color: #4CAF50;"><strong>${item.premissa}</strong></td>
-                                        <td style="padding: 8px; text-align: center; border: 1px solid #9FA8DA; color: #D32F2F;"><strong>${item.gap}</strong></td>
-                                    </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
-                        <br>
-                        <strong style="color: #283593;">💡 Impacto da melhoria:</strong><br>
-                        Elevar estes indicadores ao nível da premissa Monest resultará em:<br>
-                        • Redução significativa do custo por acordo<br>
-                        • Melhoria do ROI da operação<br>
-                        • Maior eficiência operacional<br>
-                        • Redução de risco de churn<br><br>
-                        
-                        <strong style="color: #283593;">📚 Para melhorias neste processo, acesse:</strong><br><br>
-                        <div style="margin-top: 10px;">
-                            ${belowBenchmark.map(item => {
-                                const links = {
-                                    'Taxa de Entrega': 'https://www.notion.so/monest/Playbook-KAM-Monest-29567bc6740a809c8268f0f9e500d85d?source=copy_link#2e267bc6740a80cc941ed3a1f8c2ebab',
-                                    'Taxa de Resposta': 'https://www.notion.so/monest/Playbook-KAM-Monest-29567bc6740a809c8268f0f9e500d85d?source=copy_link#2e267bc6740a803e964dcbf3243b8948',
-                                    'Taxa de CPC': 'https://www.notion.so/monest/Playbook-KAM-Monest-29567bc6740a809c8268f0f9e500d85d?source=copy_link#2e267bc6740a80979f36ccdbebc961a9',
-                                    'Taxa de Conversão': 'https://www.notion.so/monest/Playbook-KAM-Monest-29567bc6740a809c8268f0f9e500d85d?source=copy_link#2e267bc6740a807cb0f5d9ac569fd207',
-                                    'Efetividade de Pagamento': 'https://www.notion.so/monest/Playbook-KAM-Monest-29567bc6740a809c8268f0f9e500d85d?source=copy_link#2e267bc6740a80c8b270e1130812f023'
-                                };
-                                const link = links[item.name];
-                                return link ? `<a href="${link}" target="_blank" class="playbook-btn">📖 ${item.name} - Acessar Playbook</a>` : '';
-                            }).join('')}
-                        </div>
+                        <strong>Fórmula de investimento aplicada:</strong><br>
+                        R$ 2.985,00 + ((${formatNumber(adjustedMinAttendance)} - 1.500) × ${formatCurrency(valuePerAttendance)})<br><br>
+                        <strong>Atendimentos considerados:</strong><br>
+                        • Contratados: ${formatNumber(minAttendance)}<br>
+                        • Carência: 1.500<br>
+                        • Total a gerar: ${formatNumber(adjustedMinAttendance)}
                     </span>
                 </div>`;
             }
             
-            // Alerta de ROI baixo
-            if (targetROI >= 2 && targetROI < 10) {
-                const roiHealthLevel = targetROI < 5 ? 'CRÍTICA' : targetROI < 7 ? 'PREOCUPANTE' : 'ATENÇÃO';
-                const roiHealthColor = targetROI < 5 ? '#D32F2F' : targetROI < 7 ? '#F57C00' : '#FF9800';
-                const roiHealthBg = targetROI < 5 ? '#FFEBEE' : targetROI < 7 ? '#FFF3E0' : '#FFF8E1';
+            if (effectiveROI < 10) {
+                const targetRoiPercentage = (targetROI * 100).toFixed(0);
+                const roiGap = (targetROI - effectiveROI) * 100;
                 
-                alerts += `<div class="warning-box" style="background: ${roiHealthBg}; border-left-color: ${roiHealthColor};">
-                    <strong style="color: ${roiHealthColor};">⚠️ SAÚDE DA OPERAÇÃO: ${roiHealthLevel}</strong><br><br>
+                alerts += `<div class="warning-box" style="background: #FFF3E0; border-left-color: #F57C00;">
+                    <strong style="color: #E65100;">⚠️ ATENÇÃO: ROI Abaixo de 10x</strong><br><br>
                     <span style="color: #555;">
-                        <strong>ROI configurado:</strong> ${targetROI}x (abaixo do recomendado de 10x)<br><br>
-                        
-                        <strong>Análise de impacto:</strong><br>
-                        ${targetROI < 5 ? 
-                            '• <strong style="color: #D32F2F;">CRÍTICO:</strong> Custo da MIA extremamente elevado<br>' +
-                            '• <strong style="color: #D32F2F;">Alto risco de churn imediato</strong><br>' +
-                            '• Operação insustentável a médio/longo prazo<br>' +
-                            '• Margem de lucro comprometida<br><br>' +
-                            '<strong style="color: #D32F2F;">Ação urgente necessária!</strong>' 
-                        : targetROI < 7 ?
-                            '• <strong style="color: #F57C00;">PREOCUPANTE:</strong> Custo da MIA muito elevado<br>' +
-                            '• Risco significativo de churn a médio prazo<br>' +
-                            '• Sustentabilidade da operação comprometida<br>' +
-                            '• Necessário monitoramento constante<br><br>' +
-                            '<strong style="color: #F57C00;">Requer atenção prioritária</strong>'
-                        :
-                            '• <strong style="color: #FF9800;">ATENÇÃO:</strong> Custo da MIA elevado<br>' +
-                            '• Possível risco de churn a longo prazo<br>' +
-                            '• Margem de lucro reduzida<br>' +
-                            '• Recomendável otimização da operação<br><br>' +
-                            '<strong style="color: #FF9800;">Monitoramento recomendado</strong>'
-                        }<br><br>
-                        
-                        <strong>Recomendações:</strong><br>
-                        • <strong>Otimizar taxas de conversão</strong> do funil para reduzir custo por acordo<br>
+                        <strong>ROI Calculado:</strong> ${formatROI(effectiveROI)}<br>
+                        <strong>ROI Objetivo:</strong> ${targetRoiPercentage}% (${targetROI}x)<br>
+                        <strong>Gap:</strong> ${roiGap.toFixed(1)} pontos percentuais<br><br>
+                        <strong>Situação:</strong> O funil foi calculado priorizando o <strong>mínimo de ${formatNumber(attendances)} atendimentos</strong>, 
+                        resultando em um ROI abaixo do ideal de 10x (1000%).<br><br>
+                        <strong>Impacto:</strong><br>
+                        • Rentabilidade reduzida da operação<br>
+                        • Margem de lucro comprometida<br>
+                        • Possível insatisfação do cliente com resultados<br><br>
+                        <strong>Recomendações para aumentar ROI:</strong><br>
                         • <strong>Aumentar ticket médio</strong> através de melhores ofertas de negociação<br>
-                        • <strong>Melhorar qualidade da base</strong> para aumentar taxa de resposta<br>
-                        • <strong>Revisar estratégia de abordagem</strong> para maximizar conversão<br>
-                        • <strong>Considerar ajuste de pricing</strong> com o cliente<br>
-                        • <strong>Avaliar viabilidade</strong> de continuar operação com este ROI
+                        • <strong>Otimizar taxas de conversão</strong> do funil (CPC, conversão, pagamento)<br>
+                        • <strong>Melhorar qualidade da base</strong> para reduzir custo por atendimento<br>
+                        • <strong>Reduzir custos operacionais</strong> otimizando disparos<br>
+                        • <strong>Revisar pricing</strong> com o cliente se necessário
                     </span>
                 </div>`;
             }
             
-            if (basePenetration > 2) {
-                alerts += `<div class="warning-box">
-                    <strong>⚠️ Atenção:</strong> A penetração de base é muito alta (${basePenetration.toFixed(2)}x). 
-                    Cada CPF será acionado mais de 2 vezes no mês. Considere aumentar a base ou revisar as metas.
+            if (operationalCost > 10) {
+                const excessCost = operationalCost - 7;
+                alerts += `<div class="warning-box" style="background: #FFF3E0; border-left-color: #FF9800;">
+                    <strong style="color: #E65100;">⚠️ ATENÇÃO: Custo Operacional Elevado</strong><br><br>
+                    <span style="color: #555;">
+                        <strong>Custo Operacional Atual:</strong> ${operationalCost.toFixed(1)}%<br>
+                        <strong>Custo Operacional Saudável:</strong> Abaixo de 7%<br>
+                        <strong>Diferença:</strong> +${excessCost.toFixed(1)} pontos percentuais acima do ideal<br><br>
+                        <strong>Impacto:</strong><br>
+                        • Margem de lucro reduzida<br>
+                        • Operação menos eficiente<br>
+                        • ROI comprometido<br>
+                        • Sustentabilidade financeira em risco<br><br>
+                        <strong>Recomendações para reduzir custo operacional:</strong><br>
+                        • <strong>Otimizar taxas de conversão</strong> do funil (reduz custo por acordo)<br>
+                        • <strong>Aumentar ticket médio</strong> dos acordos (aumenta receita)<br>
+                        • <strong>Melhorar taxa de resposta</strong> (reduz disparos necessários)<br>
+                        • <strong>Aumentar efetividade de pagamento</strong> (mais acordos pagos)<br>
+                        • <strong>Revisar pricing</strong> com o cliente para melhorar margens<br>
+                        • <strong>Reduzir custo HSM</strong> otimizando quantidade de disparos
+                    </span>
                 </div>`;
             }
             
-            if (safetyMargin < 10) {
-                alerts += `<div class="warning-box">
-                    <strong>⚠️ Atenção:</strong> Margem de segurança baixa (${safetyMargin.toFixed(1)}%). 
-                    Há pouca folga para variações operacionais.
+            if (hasLicense2985 && adjustedMinAttendance < 11500) {
+                alerts += `<div class="warning-box" style="background: #FFF3E0; border-left-color: #FF9800;">
+                    <strong style="color: #E65100;">⚠️ ATENÇÃO: Volume Abaixo do Ideal para Licença R$ 2.985,00</strong><br><br>
+                    <span style="color: #555;">
+                        <strong>Mínimo Garantido Contratado:</strong> ${formatNumber(minAttendance)}<br>
+                        <strong>Total com Carência:</strong> ${formatNumber(adjustedMinAttendance)} atendimentos<br>
+                        <strong>Volume Ideal para este Plano:</strong> 11.500 atendimentos (10.000 contratados + 1.500 carência)<br><br>
+                        <strong>Déficit:</strong> ${formatNumber(11500 - adjustedMinAttendance)} atendimentos (${((11500 - adjustedMinAttendance) / 11500 * 100).toFixed(1)}%)<br><br>
+                        <strong>Recomendação:</strong> Para otimizar o investimento no plano de R$ 2.985,00, considere contratar no mínimo 10.000 atendimentos (resultando em 11.500 com a carência inclusa).
+                    </span>
                 </div>`;
             }
             
-            // Alerta crítico de qualidade
-            if (basePenetration > 4 || dispatchSpacing < 7) {
+            if (basePenetration > 400) {
                 alerts += `<div class="warning-box" style="background: #FFEBEE; border-left-color: #D32F2F;">
-                    <strong style="color: #C62828;">🚨 ALERTA CRÍTICO: Risco de Queda de Qualidade</strong><br><br>
+                    <strong style="color: #C62828;">🚨 ALERTA CRÍTICO: Saturação Extrema da Base</strong><br><br>
                     <span style="color: #555;">
-                        ${basePenetration > 4 ? `<strong>Penetração de base muito alta:</strong> ${basePenetration.toFixed(2)}x (limite recomendado: 4x)<br>` : ''}
-                        ${dispatchSpacing < 7 ? `<strong>Espaçamento muito curto:</strong> ${dispatchSpacing} dias (mínimo recomendado: 7 dias)<br>` : ''}
-                    </span><br>
-                    <span style="color: #555;">
-                        <strong>Risco identificado:</strong> Alta taxa de denúncia por spam devido ao excesso de acionamentos.<br><br>
-                        <strong>Solução recomendada:</strong><br>
-                        • <strong>Avaliar estratégia de oxigenação da base</strong> com o cliente<br>
-                        • Discutir possibilidades de expansão e renovação da carteira ativa<br>
-                        • Analisar inclusão de novos CPF para diluir frequência de contato<br>
-                        • Considerar ajuste nas metas de atendimento ou ROI<br>
-                        • Revisar políticas de recência e frequência de acionamento
+                        <strong>Penetração de base:</strong> ${basePenetration.toFixed(1)}% (limite crítico: 400%)<br><br>
+                        A estratégia de disparos poderá <strong>prejudicar severamente a operação do cliente</strong>, pois estará saturando muito a base.
                     </span>
+                </div>`;
+            }
+            
+            if (dispatchSpacing < 7) {
+                alerts += `<div class="warning-box" style="background: #FFF3E0; border-left-color: #F57C00;">
+                    <strong style="color: #E65100;">⚠️ ALERTA DE ALTO RISCO: Espaçamento Insuficiente</strong><br><br>
+                    <span style="color: #555;">
+                        <strong>Espaçamento entre disparos:</strong> ${dispatchSpacing} dias (mínimo recomendado: 7 dias)<br><br>
+                        Alto risco de problemas na operação devido à penetração da base muito intensa.
+                    </span>
+                </div>`;
+            }
+            
+            if (targetROI < 7) {
+                alerts += `<div class="warning-box" style="background: #FFEBEE; border-left-color: #D32F2F;">
+                    <strong style="color: #C62828;">🚨 ALERTA CRÍTICO: Risco à Saúde Financeira da Operação</strong><br><br>
+                    <span style="color: #555;">
+                        <strong>ROI configurado:</strong> ${targetROI}x (abaixo do mínimo recomendado de 7x)<br><br>
+                        ROI extremamente baixo indica operação de alto risco com sustentabilidade questionável.
+                    </span>
+                </div>`;
+            } else if (targetROI >= 7 && targetROI < 15) {
+                alerts += `<div class="warning-box" style="background: #FFF3E0; border-left-color: #FF9800;">
+                    <strong style="color: #E65100;">⚠️ ATENÇÃO: ROI Abaixo do Recomendado</strong><br><br>
+                    <span style="color: #555;">
+                        <strong>ROI configurado:</strong> ${targetROI}x (recomendado: 15x)<br><br>
+                        Considere otimizar as taxas de conversão e aumentar o ticket médio para melhorar o ROI.
+                    </span>
+                </div>`;
+            }
+            
+            if (basePenetration > 200 && basePenetration <= 400) {
+                alerts += `<div class="warning-box">
+                    <strong>⚠️ Atenção:</strong> A penetração de base é alta (${basePenetration.toFixed(1)}%). 
+                    Considere aumentar a base ou revisar as metas.
                 </div>`;
             }
             
             document.getElementById('alertMessages').innerHTML = alerts;
             
-            // Mostrar resultados
             document.getElementById('results').classList.add('active');
             document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
         
         function downloadPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('p', 'mm', 'a4');
-            
-            // Capturar dados da última calculação
-            const clientName = document.getElementById('clientName').value || 'Cliente';
-            const baseSize = parseFloat(document.getElementById('baseSize').value);
-            const minAttendance = parseFloat(document.getElementById('minAttendance').value);
-            const valuePerAttendance = parseFloat(document.getElementById('valuePerAttendance').value);
-            const platformLicense = parseFloat(document.getElementById('platformLicense').value);
-            const targetROI = parseFloat(document.getElementById('targetROI').value);
-            
-            const deliveryRate = parseFloat(document.getElementById('deliveryRate').value) / 100;
-            const responseRate = parseFloat(document.getElementById('responseRate').value) / 100;
-            const cpcRate = parseFloat(document.getElementById('cpcRate').value) / 100;
-            const conversionRate = parseFloat(document.getElementById('conversionRate').value) / 100;
-            const paymentRate = parseFloat(document.getElementById('paymentRate').value) / 100;
-            const avgTicket = parseFloat(document.getElementById('avgTicket').value);
-            
-            const workDays = parseFloat(document.getElementById('workDays').value);
-            const paymentDeadline = parseFloat(document.getElementById('paymentDeadline').value);
-            
-            // Recalcular valores
-            const minGuaranteed = minAttendance * valuePerAttendance;
-            const totalInvestment = minGuaranteed + platformLicense;
-            const targetRecoveryROI = totalInvestment + (totalInvestment * targetROI);
-            const paidAgreementsROI = Math.ceil(targetRecoveryROI / avgTicket);
-            const generatedAgreementsROI = Math.ceil(paidAgreementsROI / paymentRate);
-            const cpcConfirmedROI = Math.ceil(generatedAgreementsROI / conversionRate);
-            const attendancesROI = Math.ceil(cpcConfirmedROI / cpcRate);
-            const deliveredDispatchesROI = Math.ceil(attendancesROI / responseRate);
-            const totalDispatchesROI = Math.ceil(deliveredDispatchesROI / deliveryRate);
-            
-            const deliveredDispatchesMin = Math.ceil(minAttendance / responseRate);
-            const totalDispatchesMin = Math.ceil(deliveredDispatchesMin / deliveryRate);
-            const attendancesMin = minAttendance;
-            const cpcConfirmedMin = Math.ceil(attendancesMin * cpcRate);
-            const generatedAgreementsMin = Math.ceil(cpcConfirmedMin * conversionRate);
-            const paidAgreementsMin = Math.ceil(generatedAgreementsMin * paymentRate);
-            const targetRecoveryMin = paidAgreementsMin * avgTicket;
-            const effectiveROIMin = (targetRecoveryMin - totalInvestment) / totalInvestment;
-            
-            let useMinimumScenario = attendancesROI < minAttendance;
-            
-            const totalDispatches = useMinimumScenario ? totalDispatchesMin : totalDispatchesROI;
-            const deliveredDispatches = useMinimumScenario ? deliveredDispatchesMin : deliveredDispatchesROI;
-            const attendances = useMinimumScenario ? attendancesMin : attendancesROI;
-            const cpcConfirmed = useMinimumScenario ? cpcConfirmedMin : cpcConfirmedROI;
-            const generatedAgreements = useMinimumScenario ? generatedAgreementsMin : generatedAgreementsROI;
-            const paidAgreements = useMinimumScenario ? paidAgreementsMin : paidAgreementsROI;
-            const targetRecovery = useMinimumScenario ? targetRecoveryMin : targetRecoveryROI;
-            const effectiveROI = useMinimumScenario ? effectiveROIMin : targetROI;
-            
-            const dailyDispatches = Math.ceil(totalDispatches / workDays);
-            const basePenetration = totalDispatches / baseSize;
-            const dispatchSpacing = Math.round(workDays / basePenetration);
-            const productiveDays = workDays - paymentDeadline;
-            const baseCapacity = Math.floor(baseSize * basePenetration);
-            const safetyMargin = ((baseCapacity - totalDispatches) / totalDispatches) * 100;
-            
-            // Configurações de cor
-            const primaryColor = [77, 0, 174]; // #4D00AE
-            const secondaryColor = [119, 64, 249]; // #7740F9
-            const accentColor = [19, 170, 230]; // #13AAE6
-            
-            let yPos = 20;
-            
-            // Cabeçalho
-            doc.setFillColor(...primaryColor);
-            doc.rect(0, 0, 210, 45, 'F');
-            doc.setTextColor(255, 255, 255);
-            doc.setFontSize(24);
-            doc.setFont(undefined, 'bold');
-            doc.text('PLANO DE AÇÃO', 105, 20, { align: 'center' });
-            doc.setFontSize(14);
-            doc.setFont(undefined, 'normal');
-            doc.text(clientName, 105, 30, { align: 'center' });
-            doc.setFontSize(10);
-            doc.text('Gerado em: ' + new Date().toLocaleDateString('pt-BR'), 105, 38, { align: 'center' });
-            
-            yPos = 55;
-            doc.setTextColor(0, 0, 0);
-            
-            // Resumo Financeiro
-            doc.setFillColor(...secondaryColor);
-            doc.rect(10, yPos, 190, 8, 'F');
-            doc.setTextColor(255, 255, 255);
-            doc.setFontSize(12);
-            doc.setFont(undefined, 'bold');
-            doc.text('RESUMO FINANCEIRO', 15, yPos + 6);
-            yPos += 12;
-            
-            doc.setTextColor(0, 0, 0);
-            doc.setFontSize(10);
-            doc.setFont(undefined, 'normal');
-            doc.text('Investimento Total:', 15, yPos);
-            doc.setFont(undefined, 'bold');
-            doc.text(formatCurrency(totalInvestment), 195, yPos, { align: 'right' });
-            yPos += 6;
-            
-            doc.setFont(undefined, 'normal');
-            doc.text('Valor a Recuperar:', 15, yPos);
-            doc.setFont(undefined, 'bold');
-            doc.text(formatCurrency(targetRecovery), 195, yPos, { align: 'right' });
-            yPos += 6;
-            
-            doc.setFont(undefined, 'normal');
-            doc.text('ROI Efetivo:', 15, yPos);
-            doc.setFont(undefined, 'bold');
-            doc.text(effectiveROI.toFixed(1) + 'x', 195, yPos, { align: 'right' });
-            yPos += 10;
-            
-            // Funil de Conversão
-            doc.setFillColor(...secondaryColor);
-            doc.rect(10, yPos, 190, 8, 'F');
-            doc.setTextColor(255, 255, 255);
-            doc.setFontSize(12);
-            doc.setFont(undefined, 'bold');
-            doc.text('FUNIL DE CONVERSÃO', 15, yPos + 6);
-            yPos += 12;
-            
-            doc.setTextColor(0, 0, 0);
-            doc.setFontSize(9);
-            
-            const funnelData = [
-                ['Disparos Agendados', formatNumber(totalDispatches), 'Total do mês'],
-                ['Taxa de Entrega', (deliveryRate * 100).toFixed(0) + '%', '-'],
-                ['Disparos Entregues', formatNumber(deliveredDispatches), '-'],
-                ['Taxa de Resposta', (responseRate * 100).toFixed(0) + '%', '-'],
-                ['Atendimentos', formatNumber(attendances), 'Meta: ' + formatNumber(minAttendance)],
-                ['Taxa de CPC', (cpcRate * 100).toFixed(0) + '%', '-'],
-                ['Identidade Confirmada', formatNumber(cpcConfirmed), '-'],
-                ['Taxa de Conversão', (conversionRate * 100).toFixed(0) + '%', '-'],
-                ['Acordos Gerados', formatNumber(generatedAgreements), '-'],
-                ['Efetividade Pagamento', (paymentRate * 100).toFixed(0) + '%', '-'],
-                ['Acordos Pagos', formatNumber(paidAgreements), 'Meta final'],
-                ['Valor Recuperado', formatCurrency(targetRecovery), 'ROI = ' + effectiveROI.toFixed(1) + 'x']
-            ];
-            
-            funnelData.forEach((row, index) => {
-                if (yPos > 270) {
-                    doc.addPage();
-                    yPos = 20;
-                }
-                
-                if (index === funnelData.length - 1) {
-                    doc.setFillColor(...accentColor);
-                    doc.rect(10, yPos - 3, 190, 7, 'F');
-                    doc.setTextColor(255, 255, 255);
-                }
-                
-                doc.setFont(undefined, 'normal');
-                doc.text(row[0], 15, yPos);
-                doc.setFont(undefined, 'bold');
-                doc.text(row[1], 105, yPos, { align: 'center' });
-                doc.setFont(undefined, 'normal');
-                doc.text(row[2], 195, yPos, { align: 'right' });
-                
-                if (index === funnelData.length - 1) {
-                    doc.setTextColor(0, 0, 0);
-                }
-                
-                yPos += 6;
-            });
-            
-            yPos += 5;
-            
-            // Configurações Operacionais
-            if (yPos > 230) {
-                doc.addPage();
-                yPos = 20;
-            }
-            
-            doc.setFillColor(...secondaryColor);
-            doc.rect(10, yPos, 190, 8, 'F');
-            doc.setTextColor(255, 255, 255);
-            doc.setFontSize(12);
-            doc.setFont(undefined, 'bold');
-            doc.text('CONFIGURAÇÕES OPERACIONAIS', 15, yPos + 6);
-            yPos += 12;
-            
-            doc.setTextColor(0, 0, 0);
-            doc.setFontSize(10);
-            
-            const configs = [
-                ['Disparos por dia:', formatNumber(dailyDispatches)],
-                ['Espaçamento entre disparos:', dispatchSpacing + ' dias'],
-                ['Penetração de base:', basePenetration.toFixed(2) + 'x'],
-                ['Dias úteis produtivos:', productiveDays + ' D.U.'],
-                ['Capacidade total da base:', formatNumber(baseCapacity) + ' disparos'],
-                ['Margem de segurança:', safetyMargin.toFixed(1) + '%']
-            ];
-            
-            configs.forEach(config => {
-                doc.setFont(undefined, 'normal');
-                doc.text(config[0], 15, yPos);
-                doc.setFont(undefined, 'bold');
-                doc.text(config[1], 195, yPos, { align: 'right' });
-                yPos += 7;
-            });
-            
-            yPos += 5;
-            
-            // Alertas e Recomendações
-            if (yPos > 240) {
-                doc.addPage();
-                yPos = 20;
-            }
-            
-            doc.setFillColor(...secondaryColor);
-            doc.rect(10, yPos, 190, 8, 'F');
-            doc.setTextColor(255, 255, 255);
-            doc.setFontSize(12);
-            doc.setFont(undefined, 'bold');
-            doc.text('PONTOS DE ATENÇÃO', 15, yPos + 6);
-            yPos += 12;
-            
-            doc.setTextColor(0, 0, 0);
-            doc.setFontSize(9);
-            doc.setFont(undefined, 'normal');
-            
-            if (useMinimumScenario) {
-                doc.text('• Cálculo ajustado para priorizar o mínimo garantido de ' + formatNumber(minAttendance) + ' atendimentos', 15, yPos, { maxWidth: 180 });
-                yPos += 6;
-                doc.text('• ROI efetivo (' + effectiveROI.toFixed(1) + 'x) ficou acima do objetivo (' + targetROI + 'x)', 15, yPos, { maxWidth: 180 });
-                yPos += 10;
-            } else {
-                doc.text('• Cenário ideal alcançado: ROI e mínimo garantido atendidos simultaneamente', 15, yPos, { maxWidth: 180 });
-                yPos += 10;
-            }
-            
-            if (basePenetration > 2) {
-                doc.text('• Atenção: Penetração de base alta (' + basePenetration.toFixed(2) + 'x). Considere aumentar base.', 15, yPos, { maxWidth: 180 });
-                yPos += 10;
-            }
-            
-            if (safetyMargin < 10) {
-                doc.text('• Atenção: Margem de segurança baixa (' + safetyMargin.toFixed(1) + '%). Pouca folga operacional.', 15, yPos, { maxWidth: 180 });
-                yPos += 10;
-            }
-            
-            // Rodapé
-            doc.setFillColor(...primaryColor);
-            doc.rect(0, 280, 210, 17, 'F');
-            doc.setTextColor(255, 255, 255);
-            doc.setFontSize(8);
-            doc.text('Documento gerado pela Calculadora de Plano de Ação - Monest', 105, 290, { align: 'center' });
-            
-            // Salvar PDF
-            const fileName = `Plano_Acao_${clientName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
-            doc.save(fileName);
+            alert('Funcionalidade de PDF será implementada em breve.');
         }
     </script>
 </body>
