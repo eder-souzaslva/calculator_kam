@@ -292,7 +292,18 @@
                     </div>
                     <div class="input-group">
                         <label>Base de CPF Ativa</label>
-                        <input type="number" id="baseSize" placeholder="Ex: 52182">
+                        <input type="number" id="baseSize" placeholder="Ex: 52182" oninput="calculatePortfolioTicket()">
+                    </div>
+                    <div class="input-group">
+                        <label>Saldo Carteira (R$)</label>
+                        <input type="number" step="0.01" id="portfolioBalance" placeholder="Ex: 14872130.00" oninput="calculatePortfolioTicket()">
+                    </div>
+                    <div class="input-group">
+                        <label>Ticket Médio Carteira</label>
+                        <input type="text" id="portfolioTicket" placeholder="Calculado automaticamente" disabled style="background: #EEEEEE; cursor: not-allowed;">
+                        <div style="color: #7740F9; font-size: 0.85em; margin-top: 5px; font-style: italic;">
+                            📊 Calculado: Saldo Carteira ÷ Base CPF
+                        </div>
                     </div>
                     <div class="input-group">
                         <label>Atendimentos Contratados (Mínimo Garantido)</label>
@@ -513,8 +524,22 @@
             return roiPercent + '%';
         }
         
+        function calculatePortfolioTicket() {
+            const baseSize = parseFloat(document.getElementById('baseSize').value);
+            const portfolioBalance = parseFloat(document.getElementById('portfolioBalance').value);
+            
+            if (!isNaN(baseSize) && !isNaN(portfolioBalance) && baseSize > 0) {
+                const portfolioTicket = portfolioBalance / baseSize;
+                // Formatar manualmente para evitar problemas com locale
+                document.getElementById('portfolioTicket').value = 'R$ ' + portfolioTicket.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            } else {
+                document.getElementById('portfolioTicket').value = '';
+            }
+        }
+        
         function calculate() {
             const baseSize = parseFloat(document.getElementById('baseSize').value);
+            const portfolioBalance = parseFloat(document.getElementById('portfolioBalance').value);
             const minAttendance = parseFloat(document.getElementById('minAttendance').value);
             const valuePerAttendance = parseFloat(document.getElementById('valuePerAttendance').value);
             const platformLicense = parseFloat(document.getElementById('platformLicense').value) || 0;
@@ -525,10 +550,13 @@
                 document.getElementById('targetROI').value = 15;
             }
             
-            if (isNaN(baseSize) || isNaN(minAttendance) || isNaN(valuePerAttendance)) {
+            if (isNaN(baseSize) || isNaN(portfolioBalance) || isNaN(minAttendance) || isNaN(valuePerAttendance)) {
                 alert('Por favor, preencha todos os campos obrigatórios!');
                 return;
             }
+            
+            // Calcular ticket médio da carteira
+            const portfolioTicket = portfolioBalance / baseSize;
             
             // VALIDAÇÃO: Base insuficiente (atendimentos > 4x base)
             if (minAttendance > (baseSize * 4)) {
@@ -555,6 +583,23 @@
             let conversionRate = parseFloat(document.getElementById('conversionRate').value);
             let paymentRate = parseFloat(document.getElementById('paymentRate').value);
             let avgTicket = parseFloat(document.getElementById('avgTicket').value);
+            
+            // VALIDAÇÃO: Ticket médio informado > 2x ticket da carteira
+            if (!isNaN(avgTicket) && avgTicket > 0) {
+                const maxAcceptableTicket = portfolioTicket * 2;
+                const ticketMultiplier = avgTicket / portfolioTicket;
+                
+                if (avgTicket > maxAcceptableTicket) {
+                    alert('🚨 TICKET MÉDIO MAIOR QUE O DA BASE GERAL!\n\n' +
+                          'Ticket Médio Informado: ' + formatCurrency(avgTicket) + '\n' +
+                          'Ticket Médio da Carteira: ' + formatCurrency(portfolioTicket) + '\n' +
+                          'Limite Máximo Aceitável (2x): ' + formatCurrency(maxAcceptableTicket) + '\n\n' +
+                          'O ticket médio informado é ' + ticketMultiplier.toFixed(1) + 'x maior que o ticket médio da carteira.\n' +
+                          'Isso indica que a meta pode ser inviável considerando o perfil da base disponível.\n\n' +
+                          'Recomendação: Ajuste o ticket médio para um valor mais realista baseado na carteira atual.');
+                    return;
+                }
+            }
             
             let autoCalculated = {
                 delivery: false,
@@ -631,7 +676,8 @@
                 const generatedAgreementsMin = Math.ceil(cpcConfirmedMin * conversionRate);
                 const paidAgreementsMin = Math.ceil(generatedAgreementsMin * paymentRate);
                 
-                const targetRecoveryForROI = totalCostMin * (1 + targetROI);
+                // Usa o ROI objetivo para calcular o ticket necessário
+                const targetRecoveryForROI = totalCostMin * targetROI;
                 avgTicket = targetRecoveryForROI / paidAgreementsMin;
                 
                 document.getElementById('avgTicket').value = avgTicket.toFixed(2);
@@ -646,7 +692,7 @@
             const paidAgreementsMin = Math.ceil(generatedAgreementsMin * paymentRate);
             const targetRecoveryMin = paidAgreementsMin * avgTicket;
             
-            const effectiveROIMin = (targetRecoveryMin - totalCostMin) / totalCostMin;
+            const effectiveROIMin = (targetRecoveryMin / totalCostMin);
             
             const totalDispatches = totalDispatchesMin;
             const deliveredDispatches = deliveredDispatchesMin;
@@ -697,40 +743,93 @@
             }
             
             let ticketAdjustmentHTML = '';
-            const recommendedTicket = (totalCost * (1 + targetROI)) / paidAgreements;
+            const recommendedTicket = (totalCost * targetROI) / paidAgreements;
+            const maxAcceptableTicket = portfolioTicket * 2;
+            const isRecommendedTicketViable = recommendedTicket <= maxAcceptableTicket;
             
             if (effectiveROI < targetROI) {
                 const ticketIncrease = ((recommendedTicket - avgTicket) / avgTicket) * 100;
-                ticketAdjustmentHTML = `
-                    <div style="background: #FFF3E0; padding: 20px; border-radius: 10px; margin-top: 20px; border-left: 5px solid #FF9800;">
-                        <h4 style="color: #E65100; margin-bottom: 15px;">💡 Oportunidade: Otimização de ROI</h4>
-                        <p style="margin-bottom: 15px; color: #555;">
-                            O cálculo foi baseado no <strong>mínimo garantido de ${formatNumber(minAttendance)} atendimentos</strong> (prioridade #1).
-                            Para atingir também o <strong>ROI objetivo de ${targetROI}x</strong>, seria necessário um ticket médio maior.
-                        </p>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-top: 15px;">
-                            <div style="background: #FFFFFF; padding: 15px; border-radius: 8px; border: 2px solid #FF9800;">
-                                <div style="color: #E65100; font-weight: 600; font-size: 0.9em; margin-bottom: 8px;">Ticket Atual</div>
-                                <div style="color: #FF6F00; font-weight: 700; font-size: 1.3em;">${formatCurrency(avgTicket)}</div>
+                
+                // Verificar se o ticket recomendado é viável
+                if (!isRecommendedTicketViable) {
+                    const ticketMultiplier = recommendedTicket / portfolioTicket;
+                    ticketAdjustmentHTML = `
+                        <div style="background: #FFEBEE; padding: 20px; border-radius: 10px; margin-top: 20px; border-left: 5px solid #D32F2F;">
+                            <h4 style="color: #C62828; margin-bottom: 15px;">⚠️ ATENÇÃO: Ticket Recomendado Acima do Limite Viável</h4>
+                            <p style="margin-bottom: 15px; color: #555;">
+                                Para atingir o <strong>ROI objetivo de ${targetROI}x</strong>, seria necessário um ticket médio de <strong>${formatCurrency(recommendedTicket)}</strong>.
+                                Porém, este valor <strong>excede 2x o ticket médio da carteira</strong> (${formatCurrency(portfolioTicket)}).
+                            </p>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-top: 15px;">
+                                <div style="background: #FFFFFF; padding: 15px; border-radius: 8px; border: 2px solid #FF9800;">
+                                    <div style="color: #E65100; font-weight: 600; font-size: 0.9em; margin-bottom: 8px;">Ticket Atual</div>
+                                    <div style="color: #FF6F00; font-weight: 700; font-size: 1.3em;">${formatCurrency(avgTicket)}</div>
+                                </div>
+                                <div style="background: #FFFFFF; padding: 15px; border-radius: 8px; border: 2px solid #D32F2F;">
+                                    <div style="color: #C62828; font-weight: 600; font-size: 0.9em; margin-bottom: 8px;">Ticket p/ ROI ${targetROI}x (Inviável)</div>
+                                    <div style="color: #B71C1C; font-weight: 700; font-size: 1.3em;">${formatCurrency(recommendedTicket)}</div>
+                                </div>
+                                <div style="background: #FFFFFF; padding: 15px; border-radius: 8px; border: 2px solid #4CAF50;">
+                                    <div style="color: #2E7D32; font-weight: 600; font-size: 0.9em; margin-bottom: 8px;">Ticket Máximo Viável (2x)</div>
+                                    <div style="color: #1B5E20; font-weight: 700; font-size: 1.3em;">${formatCurrency(maxAcceptableTicket)}</div>
+                                </div>
                             </div>
-                            <div style="background: #FFFFFF; padding: 15px; border-radius: 8px; border: 2px solid #4CAF50;">
-                                <div style="color: #2E7D32; font-weight: 600; font-size: 0.9em; margin-bottom: 8px;">Ticket Ideal para ROI ${targetROI}x</div>
-                                <div style="color: #1B5E20; font-weight: 700; font-size: 1.3em;">${formatCurrency(recommendedTicket)}</div>
+                            <div style="background: #FFF3E0; padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 3px solid #FF9800;">
+                                <p style="color: #E65100; font-weight: 600; margin-bottom: 8px;">
+                                    📊 Análise de Viabilidade
+                                </p>
+                                <p style="color: #555; font-size: 0.95em;">
+                                    O ticket recomendado (${formatCurrency(recommendedTicket)}) é <strong>${ticketMultiplier.toFixed(1)}x maior</strong> que o ticket médio da carteira (${formatCurrency(portfolioTicket)}).<br><br>
+                                    <strong>Isso indica que:</strong><br>
+                                    • A meta de ROI ${targetROI}x pode ser inviável com a base atual<br>
+                                    • Considere reduzir o ROI objetivo ou expandir a base<br>
+                                    • Ticket máximo realista: ${formatCurrency(maxAcceptableTicket)} (2x da carteira)
+                                </p>
                             </div>
-                            <div style="background: #FFFFFF; padding: 15px; border-radius: 8px; border: 2px solid #13AAE6;">
-                                <div style="color: #0277BD; font-weight: 600; font-size: 0.9em; margin-bottom: 8px;">Aumento Necessário</div>
-                                <div style="color: #01579B; font-weight: 700; font-size: 1.3em;">+${ticketIncrease.toFixed(1)}%</div>
+                            <div style="text-align: center; margin-top: 20px;">
+                                <button disabled style="background: linear-gradient(135deg, #BDBDBD 0%, #9E9E9E 100%); color: #FFFFFF; border: none; padding: 12px 30px; font-size: 1em; font-weight: 700; border-radius: 25px; cursor: not-allowed; font-family: 'Montserrat', sans-serif; opacity: 0.6;">
+                                    ❌ Ticket Recomendado Inviável
+                                </button>
                             </div>
                         </div>
-                        <p style="margin-top: 15px; color: #555; font-size: 0.95em;">
-                            <strong>Ações para aumentar ticket médio:</strong><br>
-                            • Trabalhar com ofertas de valores maiores<br>
-                            • Focar em devedores com débitos de maior valor<br>
-                            • Ajustar estratégia de negociação<br>
-                            • Priorizar carteira de alto valor
-                        </p>
-                    </div>
-                `;
+                    `;
+                } else {
+                    ticketAdjustmentHTML = `
+                        <div style="background: #FFF3E0; padding: 20px; border-radius: 10px; margin-top: 20px; border-left: 5px solid #FF9800;">
+                            <h4 style="color: #E65100; margin-bottom: 15px;">💡 Oportunidade: Otimização de ROI</h4>
+                            <p style="margin-bottom: 15px; color: #555;">
+                                O cálculo foi baseado no <strong>mínimo garantido de ${formatNumber(minAttendance)} atendimentos</strong> (prioridade #1).
+                                Para atingir também o <strong>ROI objetivo de ${targetROI}x</strong>, seria necessário um ticket médio maior.
+                            </p>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-top: 15px;">
+                                <div style="background: #FFFFFF; padding: 15px; border-radius: 8px; border: 2px solid #FF9800;">
+                                    <div style="color: #E65100; font-weight: 600; font-size: 0.9em; margin-bottom: 8px;">Ticket Atual</div>
+                                    <div style="color: #FF6F00; font-weight: 700; font-size: 1.3em;">${formatCurrency(avgTicket)}</div>
+                                </div>
+                                <div style="background: #FFFFFF; padding: 15px; border-radius: 8px; border: 2px solid #4CAF50;">
+                                    <div style="color: #2E7D32; font-weight: 600; font-size: 0.9em; margin-bottom: 8px;">Ticket Ideal para ROI ${targetROI}x</div>
+                                    <div style="color: #1B5E20; font-weight: 700; font-size: 1.3em;">${formatCurrency(recommendedTicket)}</div>
+                                </div>
+                                <div style="background: #FFFFFF; padding: 15px; border-radius: 8px; border: 2px solid #13AAE6;">
+                                    <div style="color: #0277BD; font-weight: 600; font-size: 0.9em; margin-bottom: 8px;">Aumento Necessário</div>
+                                    <div style="color: #01579B; font-weight: 700; font-size: 1.3em;">+${ticketIncrease.toFixed(1)}%</div>
+                                </div>
+                            </div>
+                            <p style="margin-top: 15px; color: #555; font-size: 0.95em;">
+                                <strong>Ações para aumentar ticket médio:</strong><br>
+                                • Trabalhar com ofertas de valores maiores<br>
+                                • Focar em devedores com débitos de maior valor<br>
+                                • Ajustar estratégia de negociação<br>
+                                • Priorizar carteira de alto valor
+                            </p>
+                            <div style="text-align: center; margin-top: 20px;">
+                                <button onclick="applyRecommendedTicket(${recommendedTicket.toFixed(2)})" style="background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%); color: #FFFFFF; border: none; padding: 12px 30px; font-size: 1em; font-weight: 700; border-radius: 25px; cursor: pointer; font-family: 'Montserrat', sans-serif; transition: all 0.3s ease; box-shadow: 0 3px 10px rgba(76,175,80,0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 5px 15px rgba(76,175,80,0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 10px rgba(76,175,80,0.3)';">
+                                    ✅ Aplicar Ticket Recomendado e Recalcular
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
             }
             
             let autoTicketMessage = '';
@@ -955,6 +1054,17 @@
         
         function downloadPDF() {
             alert('Funcionalidade de PDF será implementada em breve.');
+        }
+        
+        function applyRecommendedTicket(recommendedValue) {
+            // Preenche o campo com o valor recomendado
+            document.getElementById('avgTicket').value = recommendedValue;
+            
+            // Recalcula automaticamente
+            calculate();
+            
+            // Scroll suave para o topo dos resultados
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     </script>
 </body>
